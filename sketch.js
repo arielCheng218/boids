@@ -1,14 +1,24 @@
 
 // init
 function setup() {
-  view_width = getViewWidth()
-  view_height = getViewHeight()
-  createCanvas(view_width - 20, view_height - 100)
-  boid = new Boid()
+  viewWidth = getViewWidth()
+  viewHeight = getViewHeight()
+  createCanvas(viewWidth - 20, viewHeight - 100)
+  boids = createBoids()
+}
+
+function createBoids() {
+  boids = []
+  for (var i = 0; i < 20; i++) {
+    boids.push(new Boid())
+  }
+  return boids
 }
 
 // main loop
 function draw() {
   background('#000000')
-  boid.draw()
+  for (var boid of boids) {
+    boid.draw(boids)
+  }
 }
