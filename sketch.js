@@ -10,7 +10,7 @@ function setup() {
 function createBoids() {
   boids = []
   for (var i = 0; i < 20; i++) {
-    boids.push(new Boid())
+    boids.push(new Boid(i))
   }
   return boids
 }
@@ -19,6 +19,7 @@ function createBoids() {
 function draw() {
   background('#000000')
   for (var boid of boids) {
-    boid.draw(boids)
+    boid.update(boids)
+    boid.draw()
   }
 }

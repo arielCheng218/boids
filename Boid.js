@@ -1,15 +1,16 @@
 
 class Boid {
   
-  constructor() {
+  constructor(id) {
+    this.id = id
     const randomCoords = getRandomCoords()
     this.desiredSeparation = 20
-    this.maxSpeed = 4
+    this.maxSpeed = 1
     this.position = createVector(randomCoords[0], randomCoords[1])
     const randomStartingVelocity = getRandomNormalizedVector()
     this.velocity = createVector(randomStartingVelocity[0], randomStartingVelocity[1]).setMag(this.maxSpeed)
     this.acceleration = createVector(0, 0)
-    this.maxForce = 0.1
+    this.maxForce = 0.0001
   }
 
   drawArrow(base, vec, myColor) {
@@ -36,7 +37,7 @@ class Boid {
     // loop through boids to find if any are too close
     for (const boid of boids) {
       const distance = this.position.dist(boid.position)
-      if ((distance < this.desiredSeparation) && (distance > 0)) {
+      if ((distance < this.desiredSeparation) && (boid.id != this.id)) {
         count += 1
         // too close; move away from boid
         var steerAwayVector = boid.position.sub(this.position)
@@ -55,17 +56,17 @@ class Boid {
   }
 
   avoidWalls() {
-    if (this.position.x > getViewWidth()) {
+    if (this.position.x >= getViewWidth()) {
       this.position.x = getViewWidth()
       this.velocity.x *= -1
-    } else if (this.position.x < 0) {
+    } else if (this.position.x <= 0) {
       this.velocity.x *= -1
       this.position.x = 0
     }
-    if (this.position.y > getViewHeight() - 100) {
+    if (this.position.y >= getViewHeight() - 100) {
       this.velocity.y *= -1
       this.position.y = getViewHeight() - 100
-    } else if (this.position.y < 0) {
+    } else if (this.position.y <= 0) {
       this.velocity.y *= -1
       this.position.y = 0
     }
@@ -83,10 +84,9 @@ class Boid {
     this.acceleration.mult(0)
   }
 
-  draw(boids) {
+  draw() {
     // graphics
     fill('#3faede')
-    this.update(boids)
     push()
     // logic
     translate(this.position.x, this.position.y)
