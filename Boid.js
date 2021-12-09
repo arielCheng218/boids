@@ -74,7 +74,7 @@ class Boid {
 
   update(boids) {
     // update velocity
-    this.separate(boids)
+    //this.separate(boids)
     this.avoidWalls()
     this.velocity.add(this.acceleration)
     this.velocity.limit(this.maxSpeed)
@@ -88,7 +88,6 @@ class Boid {
     // graphics
     fill('#3faede')
     push()
-    // logic
     translate(this.position.x, this.position.y)
     rotate(this.velocity.heading())
     triangle(-10, -5, -10, 5, 5, 0)
