@@ -9,8 +9,8 @@ function setup() {
 
 function createBoids() {
   boids = []
-  for (var i = 0; i < 20; i++) {
-    boids.push(new Boid(i))
+  for (var i = 0; i < 50; i++) {
+    boids.push(new Boid())
   }
   return boids
 }
@@ -19,7 +19,6 @@ function createBoids() {
 function draw() {
   background('#000000')
   for (var boid of boids) {
-    boid.update(boids)
-    boid.draw()
+    boid.flock(boids)
   }
 }
