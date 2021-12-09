@@ -17,7 +17,7 @@ class Boid {
   // - doesn't work if loop is for... of
   separate(boids) {
     var count = 0
-    var steer = createVector(0, 0)
+    var sum = createVector(0, 0)
     // loop through boids to find if any are too close
     for (var i = 0; i < boids.length; i++) {
       const distance = p5.Vector.dist(this.position, boids[i].position)
@@ -26,15 +26,15 @@ class Boid {
         var steerAwayVector = p5.Vector.sub(this.position, boids[i].position) // this line is the problem
         steerAwayVector.normalize()
         steerAwayVector.div(distance)
-        steer.add(steerAwayVector)
+        sum.add(steerAwayVector)
         count++
       }
     }
-    if (count > 0 && steer.mag() > 0) {
-      steer.div(count)
-      steer.normalize()
-      steer.mult(this.maxSpeed)
-      steer.sub(this.velocity)
+    if (count > 0 && sum.mag() > 0) {
+      sum.div(count)
+      sum.normalize()
+      sum.mult(this.maxSpeed)
+      const steer = p5.Vector.sub(sum, this.velocity)
       steer.limit(this.maxForce)
       return steer
     } else {
@@ -125,8 +125,8 @@ class Boid {
     const align = this.align(boids)
     const cohesion = this.cohesion(boids)
     const separation = this.separate(boids)
-    this.acceleration.add(align)
     this.acceleration.add(cohesion)
+    this.acceleration.add(align)
     this.acceleration.add(separation)
     this.update()
     this.draw()
