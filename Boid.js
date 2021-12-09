@@ -40,7 +40,24 @@ class Boid {
   }
 
   align(boids) {
-
+    const viewRadius = 30
+    var sum = createVector()
+    var count = 0
+    for (var i = 0; i < boids.length; i++) {
+      const distance = p5.Vector.dist(this.position, boid[i].position)
+      if (distance < viewRadius && boids[i] != this) {
+        sum.add(boids[i].velocity)
+        count++
+      }
+    }
+    if (count > 0) {
+      sum.div(count)
+      sum.normalize()
+      sum.mult(maxSpeed)
+      const steer = p5.Vector.sub(sum, this.velocity)
+      steer.limit(this.maxForce)
+      this.acceleration.add(steer)
+    }
   }
 
   avoidWalls() {
@@ -83,6 +100,7 @@ class Boid {
   }
 
   flock(boids) {
+    this.align(boids)
     this.separate(boids)
     this.update()
     this.draw()
