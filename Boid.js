@@ -3,12 +3,13 @@ class Boid {
   
   constructor() {
     const randomCoords = getRandomCoords()
-    this.desiredSeparation = 30
+    this.desiredSeparation = 20
+    this.viewRadius = 30
     this.maxSpeed = 2
     this.position = createVector(randomCoords[0], randomCoords[1])
     this.velocity = p5.Vector.random2D().mult(this.maxSpeed)
     this.acceleration = createVector(0, 0)
-    this.maxForce = 10
+    this.maxForce = 2
   }
 
   // NOTE: 
@@ -16,7 +17,7 @@ class Boid {
   // - doesn't work if loop is for... of
   separate(boids) {
     var count = 0
-    var steering = createVector(0, 0)
+    var steer = createVector(0, 0)
     // loop through boids to find if any are too close
     for (var i = 0; i < boids.length; i++) {
       const distance = p5.Vector.dist(this.position, boids[i].position)
@@ -25,27 +26,28 @@ class Boid {
         var steerAwayVector = p5.Vector.sub(this.position, boids[i].position) // this line is the problem
         steerAwayVector.normalize()
         steerAwayVector.div(distance)
-        steering.add(steerAwayVector)
+        steer.add(steerAwayVector)
         count++
       }
     }
-    if (count > 0 && steering.mag() > 0) {
-      steering.div(count)
-      steering.normalize()
-      steering.mult(this.maxSpeed)
-      steering.sub(this.velocity)
-      steering.limit(this.maxForce)
-      this.acceleration.add(steering)
+    if (count > 0 && steer.mag() > 0) {
+      steer.div(count)
+      steer.normalize()
+      steer.mult(this.maxSpeed)
+      steer.sub(this.velocity)
+      steer.limit(this.maxForce)
+      return steer
+    } else {
+      return createVector(0, 0)
     }
   }
 
   align(boids) {
-    const viewRadius = 30
     var sum = createVector()
     var count = 0
     for (var i = 0; i < boids.length; i++) {
-      const distance = p5.Vector.dist(this.position, boid[i].position)
-      if (distance < viewRadius && boids[i] != this) {
+      const distance = p5.Vector.dist(this.position, boids[i].position)
+      if (distance < this.viewRadius && boids[i] != this) {
         sum.add(boids[i].velocity)
         count++
       }
@@ -53,27 +55,47 @@ class Boid {
     if (count > 0) {
       sum.div(count)
       sum.normalize()
-      sum.mult(maxSpeed)
+      sum.mult(this.maxSpeed)
       const steer = p5.Vector.sub(sum, this.velocity)
       steer.limit(this.maxForce)
-      this.acceleration.add(steer)
+      return steer
+    } else {
+      return createVector(0, 0)
+    }
+  }
+
+  cohesion(boids) {
+    var sum = createVector()
+    var count = 0
+    for (var i = 0; i < boids.length; i++) {
+      const distance = p5.Vector.dist(this.position, boids[i].position)
+      if (distance < (this.viewRadius / 2) && boids[i] != this) {
+        sum.add(boids[i].velocity)
+        count++
+      }
+    }
+    if (count > 0) {
+      sum.div(count)
+      sum.normalize()
+      sum.mult(this.maxSpeed)
+      const steer = p5.Vector.sub(sum, this.velocity)
+      steer.limit(this.maxForce)
+      return steer
+    } else {
+      return createVector(0, 0)
     }
   }
 
   avoidWalls() {
     if (this.position.x > getViewWidth()) {
-      this.position.x = getViewWidth()
-      this.velocity.x *= -1
-    } else if (this.position.x <= 0) {
-      this.velocity.x *= -1
       this.position.x = 0
+    } else if (this.position.x <= 0) {
+      this.position.x = getViewWidth()
     }
     if (this.position.y > getViewHeight() - 100) {
-      this.velocity.y *= -1
-      this.position.y = getViewHeight() - 100
-    } else if (this.position.y <= 0) {
-      this.velocity.y *= -1
       this.position.y = 0
+    } else if (this.position.y <= 0) {
+      this.position.y = getViewHeight()
     }
   }
 
@@ -100,8 +122,12 @@ class Boid {
   }
 
   flock(boids) {
-    this.align(boids)
-    this.separate(boids)
+    const align = this.align(boids)
+    const cohesion = this.cohesion(boids)
+    const separation = this.separate(boids)
+    this.acceleration.add(align)
+    this.acceleration.add(cohesion)
+    this.acceleration.add(separation)
     this.update()
     this.draw()
   }

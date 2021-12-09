@@ -9,7 +9,7 @@ function setup() {
 
 function createBoids() {
   boids = []
-  for (var i = 0; i < 50; i++) {
+  for (var i = 0; i < 200; i++) {
     boids.push(new Boid())
   }
   return boids
