@@ -86,7 +86,7 @@ class Boid {
     }
   }
 
-  avoidWalls() {
+  edges() {
     if (this.position.x > getViewWidth()) {
       this.position.x = 0
     } else if (this.position.x <= 0) {
@@ -103,7 +103,7 @@ class Boid {
     // update velocity
     this.velocity.add(this.acceleration)
     this.velocity.limit(this.maxSpeed)
-    this.avoidWalls()
+    this.edges()
     // update position
     this.position.add(this.velocity)
     // clear acceleration
@@ -123,13 +123,12 @@ class Boid {
 
   flock(boids) {
     const align = this.align(boids)
-    const cohesion = this.cohesion(boids)
     const separation = this.separate(boids)
+    const cohesion = this.cohesion(boids)
     this.acceleration.add(cohesion)
     this.acceleration.add(align)
     this.acceleration.add(separation)
     this.update()
     this.draw()
   }
-
 }
