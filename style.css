@@ -1,13 +1,10 @@
 body {
   background-color: #252525;
+  margin: 0px;
   overflow: hidden; 
 }
 h1 {
   font-family: 'Poppins';
   color: white;
   text-align: center;
-}
-* {
-  margin: 0;
-  padding: 0;
 }

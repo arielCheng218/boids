@@ -27,9 +27,9 @@ function draw() {
   // predator.update(boids)
   // predator.draw()
   for (var boid of boids) {
-    boid.edges()
     boid.flock(boids)
     boid.update()
+    boid.edges()
     boid.draw()
   }
 }

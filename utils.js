@@ -1,14 +1,14 @@
 
 function getViewWidth() {
-  return Math.max(document.documentElement.clientWidth + 10 || 0, window.innerWidth + 10 || 0)
+  return Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
 }
 
 function getViewHeight() {
-  return Math.max(document.documentElement.clientHeight + 10 || 0, window.innerHeight + 10 || 0)
+  return Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 }
 
 function getRandomCoords() {
-  return [getRandomInt(0, getViewWidth() - 50), getRandomInt(0, getViewHeight())]
+  return [getRandomInt(0, getViewWidth()), getRandomInt(0, getViewHeight())]
 } 
 
 function getRandomInt(min, max) {

@@ -5,7 +5,7 @@ class Boid {
     const randomCoords = getRandomCoords()
     this.desiredSeparation = 20
     this.viewRadius = 30
-    this.maxSpeed = 3
+    this.maxSpeed = 4
     this.position = createVector(randomCoords[0], randomCoords[1])
     this.velocity = p5.Vector.random2D().mult(this.maxSpeed)
     this.acceleration = createVector(0, 0)
