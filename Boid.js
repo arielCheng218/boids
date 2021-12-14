@@ -5,11 +5,11 @@ class Boid {
     const randomCoords = getRandomCoords()
     this.desiredSeparation = 20
     this.viewRadius = 30
-    this.maxSpeed = 2
+    this.maxSpeed = 3
     this.position = createVector(randomCoords[0], randomCoords[1])
     this.velocity = p5.Vector.random2D().mult(this.maxSpeed)
     this.acceleration = createVector(0, 0)
-    this.maxForce = 2
+    this.maxForce = 0.15
   }
 
   // NOTE: 
@@ -21,9 +21,9 @@ class Boid {
     // loop through boids to find if any are too close
     for (var i = 0; i < boids.length; i++) {
       const distance = p5.Vector.dist(this.position, boids[i].position)
-      if ((distance < this.desiredSeparation) && (boids[i] != this)) {
+      if ((distance < this.desiredSeparation) && (boids[i] != this) && (distance != 0)) {
         // too close; move away from boid
-        var steerAwayVector = p5.Vector.sub(this.position, boids[i].position) // this line is the problem
+        var steerAwayVector = p5.Vector.sub(this.position, boids[i].position) 
         steerAwayVector.normalize()
         steerAwayVector.div(distance)
         sum.add(steerAwayVector)
@@ -64,21 +64,47 @@ class Boid {
     }
   }
 
+  drawArrow(base, vec, myColor) {
+    push();
+    stroke(myColor);
+    strokeWeight(3);
+    fill(myColor);
+    translate(base.x, base.y);
+    line(0, 0, vec.x, vec.y);
+    rotate(vec.heading());
+    let arrowSize = 7;
+    translate(vec.mag() - arrowSize, 0);
+    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+    pop();
+  }
+
   cohesion(boids) {
     var sum = createVector()
     var count = 0
     for (var i = 0; i < boids.length; i++) {
       const distance = p5.Vector.dist(this.position, boids[i].position)
-      if (distance < (this.viewRadius / 2) && boids[i] != this) {
-        sum.add(boids[i].velocity)
+      if (distance < this.viewRadius && boids[i] != this) {
+        sum.add(boids[i].position)
         count++
       }
     }
     if (count > 0) {
       sum.div(count)
-      sum.normalize()
-      sum.mult(this.maxSpeed)
-      const steer = p5.Vector.sub(sum, this.velocity)
+      const desired = p5.Vector.sub(sum, this.position)
+      desired.normalize()
+      desired.mult(this.maxSpeed)
+      const steer = p5.Vector.sub(desired, this.velocity)
+      return steer
+    } else {
+      return createVector(0, 0)
+    }
+  }
+
+  fleePredator(predator) {
+    const distance = p5.Vector.dist(this.position, predator.position)
+    if (distance < this.viewRadius) {
+      var steerAwayVector = p5.Vector.sub(this.position, predator.position)
+      const steer = p5.Vector.sub(steerAwayVector, this.velocity)
       steer.limit(this.maxForce)
       return steer
     } else {
@@ -92,7 +118,7 @@ class Boid {
     } else if (this.position.x <= 0) {
       this.position.x = getViewWidth()
     }
-    if (this.position.y > getViewHeight() - 100) {
+    if (this.position.y > getViewHeight()) {
       this.position.y = 0
     } else if (this.position.y <= 0) {
       this.position.y = getViewHeight()
@@ -121,14 +147,22 @@ class Boid {
     pop()
   }
 
+  checkIfDead(predatorPosition) {
+    if (p5.Vector.dist(this.position, predatorPosition)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
   flock(boids) {
     const align = this.align(boids)
     const separation = this.separate(boids)
     const cohesion = this.cohesion(boids)
-    this.acceleration.add(cohesion)
-    this.acceleration.add(align)
+    // const flee = this.fleePredator(predator)
     this.acceleration.add(separation)
-    this.update()
-    this.draw()
+    this.acceleration.add(align)
+    this.acceleration.add(cohesion.mult(0.03))
+    // this.acceleration.add(flee)
   }
 }
